@@ -283,6 +283,69 @@ LIMIT 10;
 
 ---
 
+
+##  classic cascade pattern
+7 sessions waiting on BufferIO: 6.10-6.30 seconds
+1 session waiting on DataFileRead: 6.25 seconds
+ALL running the SAME QUERY: is_flagged = true
+
+One session (pid 18054) does a DataFileRead (6.25s) - reading pages from disk
+Six other sessions (pids 18059-18070) hit BufferIO (6.10-6.30s) - waiting for that I/O to complete
+They're all querying the same data that's not in cache
+
+```sql
+-- Check if the covering index we created is helping
+EXPLAIN (ANALYZE, BUFFERS) 
+SELECT transaction_id, customer_id, amount, risk_score, fraud_check_status
+FROM financial_transactions
+WHERE is_flagged = true 
+  AND transaction_date >= CURRENT_DATE - INTERVAL '30 days'
+ORDER BY risk_score DESC
+LIMIT 100;
+
+-- Check index usage stats
+SELECT 
+  indexrelname,
+  idx_scan,
+  idx_tup_read,
+  idx_tup_fetch,
+  pg_size_pretty(pg_relation_size(indexrelid)) as size
+FROM pg_stat_user_indexes
+WHERE relname = 'financial_transactions'
+  AND indexrelname LIKE '%flagged%'
+ORDER BY idx_scan DESC;
+```
+
+Statistics... 🤔
+
+```sql
+-- Force statistics update
+ANALYZE financial_transactions;
+
+-- Then check
+SELECT 
+  attname,
+  n_distinct,
+  most_common_vals,
+  most_common_freqs
+FROM pg_stats
+WHERE tablename = 'financial_transactions'
+  AND attname IN ('is_flagged', 'transaction_date');
+
+-- Check what the planner thinks
+EXPLAIN (ANALYZE, BUFFERS, VERBOSE)
+SELECT transaction_id, customer_id, amount, risk_score, fraud_check_status
+FROM financial_transactions
+WHERE is_flagged = true 
+  AND transaction_date >= CURRENT_DATE - INTERVAL '30 days'
+ORDER BY risk_score DESC
+LIMIT 100;
+```
+
+
+
+
+
 ## Next Steps
 
 Run this to verify fixes:
