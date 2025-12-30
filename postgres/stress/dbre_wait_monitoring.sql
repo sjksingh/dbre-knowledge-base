@@ -321,16 +321,39 @@ SELECT
 -- 1. Quick health check (recommended for watch/monitoring)
 SELECT * FROM dbre_wait_health_dashboard;
 
--- 2. Detailed wait analysis with duration and severity
+-- 2. Detailed wait analysis (replaces your old view)
+SELECT 
+  wait_event_type,
+  wait_event,
+  waiting_sessions,
+  min_wait_seconds,
+  max_wait_seconds,
+  avg_wait_seconds,
+  severity,
+  recommended_action
+FROM dbre_wait_analysis;
+
+-- 3. See individual waiting sessions with durations
+SELECT 
+  pid,
+  wait_event,
+  wait_seconds,
+  duration_class,
+  left(query_preview, 200) as query
+FROM dbre_waiting_sessions_detail
+ORDER BY wait_seconds DESC;
+
+
+-- 4. Detailed wait analysis with duration and severity
 SELECT * FROM dbre_wait_analysis;
 
--- 3. Individual session investigation
+-- 5. Individual session investigation
 SELECT * FROM dbre_waiting_sessions_detail WHERE duration_class LIKE '%LONG%';
 
--- 4. Historical trending (requires capture_wait_events() running)
+-- 6. Historical trending (requires capture_wait_events() running)
 SELECT * FROM dbre_wait_trends WHERE trend = '📈 INCREASING';
 
--- 5. System correlation view
+-- 7. System correlation view
 SELECT * FROM dbre_wait_system_correlation;
 
 -- ============================================================================
