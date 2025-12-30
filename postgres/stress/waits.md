@@ -12,7 +12,7 @@
 
 ---
 
-### 🔹 Notes for Staff DBRE
+### 🔹 Notes 
 
 - Priority **High** = major performance impact, tune immediately  
 - Priority **Medium** = moderate impact, monitor and optimize  
