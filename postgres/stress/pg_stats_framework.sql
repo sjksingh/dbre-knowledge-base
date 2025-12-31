@@ -316,4 +316,27 @@ WHERE tablename = 'financial_transactions'
 
 -- Then re-run diagnostics to see if it helped
 --SELECT * FROM dbre_analyze_column_for_query('public', 'financial_transactions', 'is_flagged');
+
+-- ============================================================================
+-- Usage....
+-- ============================================================================
+
+Run dbre_stats_health and dbre_column_selectivity_recommendations
+→ Identify stale stats, low-cardinality columns, high-skew.
+
+Check dbre_partial_index_opportunities
+→ Highlight columns for partial indexes; validate with EXPLAIN.
+
+Investigate dbre_brin_candidates
+→ Focus on large append-only tables; check correlation & ordering.
+
+Diagnose joins with dbre_join_misestimation_risk
+→ Look for low-cardinality / skewed joins.
+
+Examine sequential scans via dbre_seqscan_root_cause
+→ Understand planner behavior; avoid knee-jerk index creation.
+
+Optimize indexes with dbre_duplicate_indexes_exact + dbre_duplicate_indexes_subset
+→ Find redundant or subset indexes, free up space, and improve planner efficiency.
+
 */
