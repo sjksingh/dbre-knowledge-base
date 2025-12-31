@@ -1,5 +1,16 @@
 -- ============================================================================
 -- Platform DBRE pg_stats Diagnostic Framework - PG14 COMPATIBLE
+-- Use it to diagnose whether the planner’s assumptions about the data are wrong and then choose:
+/*
+      better indexes 
+      partial indexes
+      covering indexes
+      extended statistics
+      BRIN vs BTree
+      partitioning
+      materialized subsets
+      query rewrites
+pg_stats is not a tuning knob — it is a forensic lens. */
 -- ============================================================================
 
 -- Clean slate
